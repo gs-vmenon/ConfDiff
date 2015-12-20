@@ -272,9 +272,9 @@ public class GitDiff {
                 Map<String, List<FoundFile>> branchFiles = entry.getValue();
                 System.out.println("Following is the diff for the branch: " + branchName);
                 for(Map.Entry<String, List<FoundFile>> fileEntry:branchFiles.entrySet()){
-                    System.out.println("\t\tDiff for file: " + fileEntry.getKey());
+                    System.out.println("\t\tDiff for file: " + fileEntry.getKey()+" and branch: " +branchName);
                     StringBuilder stringBuilder = new StringBuilder();
-                    String table = "| %-80s | %-50s | %-50s | %-30s\n";
+                    String table = "| %-80s | %-50s | %-50s | %-10s\n";
                     stringBuilder.append(String.format("%250s"," \n").replaceAll(" ","-"));
                     stringBuilder.append(String.format(table, "Key", "New Value", "Old Value", "Change Type"));
                     stringBuilder.append(String.format("%250s"," \n").replaceAll(" ","-"));

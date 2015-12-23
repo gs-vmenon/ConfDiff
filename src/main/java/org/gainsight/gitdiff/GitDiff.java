@@ -267,30 +267,42 @@ public class GitDiff {
                 fileGroup.put(fileName,sameFileGroup);
                 branchGroup.put(branchName,fileGroup);
             }
-            String tableDivision = String.format("%250s"," \n").replaceAll(" ","-");
             StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append("<html><head>\n" +
+                    "<style>\n" +
+                    "table, th, td {\n" +
+                    "    border: 1px solid black;\n" +
+                    "    border-collapse: collapse;\n" +
+                    "}\n" +
+                    "th, td {\n" +
+                    "    padding: 5px;\n" +
+                    "    text-align: left;\n" +
+                    "}\n" +
+                    "</style>\n" +
+                    "</head>\n" +
+                    "<body><table>");
             for(Map.Entry<String, Map<String, List<FoundFile>>> entry : branchGroup.entrySet()){
                 String branchName = entry.getKey();
                 Map<String, List<FoundFile>> branchFiles = entry.getValue();
-                stringBuilder.append(tableDivision);
-                stringBuilder.append("Following is the diff for the branch: " + branchName+"\n");
-                String table = "| %-80s | %-50s | %-50s | %-10s\n";
+                stringBuilder.append("<tr><td colspan='4'><b>Following is the diff for the branch: " + branchName+"</b></td></tr>\n");
+                String tableHead = "<tr><td><b>%s</b></td><td><b>%s</b></td><td><b>%s</b></td><td><b>%s</b></td></tr>\n";
+                String tableColumns = "<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>\n";
                 for(Map.Entry<String, List<FoundFile>> fileEntry:branchFiles.entrySet()){
-                    stringBuilder.append(tableDivision);
-                    stringBuilder.append("\t\tDiff for file: " + fileEntry.getKey()+" and branch: " +branchName + "\n");
-                    stringBuilder.append(tableDivision);
-                    stringBuilder.append(String.format(table, "Key", "New Value", "Old Value", "Change Type"));
-                    stringBuilder.append(tableDivision);
+                    stringBuilder.append("<tr><th colspan='4'>\t\tDiff for file: " + fileEntry.getKey()+" and branch: " +branchName + "</th></tr>\n");
+                    stringBuilder.append(String.format(tableHead, "Key", "New Value", "Old Value", "Change Type"));
 
                     for(FoundFile foundFile : fileEntry.getValue()) {
-                        stringBuilder.append(String.format(table, foundFile.getPropKey(), foundFile.getNewValue(), foundFile.getOldValue(), foundFile.getChangeType().getName()));
+                        stringBuilder.append(String.format(tableColumns, foundFile.getPropKey(), foundFile.getNewValue(), foundFile.getOldValue(), foundFile.getChangeType().getName()));
                     }
-                    stringBuilder.append(tableDivision + "\n\n");
+
+                    stringBuilder.append("<tr><td colspan='4'></td></tr>");
+                    stringBuilder.append("<tr><td colspan='4'></td></tr>");
                 }
             }
+            stringBuilder.append("</table></body></html>");
             OutputStreamWriter osw = null;
             try {
-                osw = new OutputStreamWriter(new FileOutputStream("./target/git-diff.txt"));
+                osw = new OutputStreamWriter(new FileOutputStream("./target/git-diff.html"));
                 osw.write(stringBuilder.toString());
             } catch (FileNotFoundException e) {
                 throw new RuntimeException(e);

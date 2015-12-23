@@ -5,7 +5,7 @@ import org.gainsight.gitdiff.dbutil.DbUtil;
 import org.gainsight.gitdiff.dbutil.MapDbUtil;
 import org.kohsuke.github.*;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -267,21 +267,42 @@ public class GitDiff {
                 fileGroup.put(fileName,sameFileGroup);
                 branchGroup.put(branchName,fileGroup);
             }
+            String tableDivision = String.format("%250s"," \n").replaceAll(" ","-");
+            StringBuilder stringBuilder = new StringBuilder();
             for(Map.Entry<String, Map<String, List<FoundFile>>> entry : branchGroup.entrySet()){
                 String branchName = entry.getKey();
                 Map<String, List<FoundFile>> branchFiles = entry.getValue();
-                System.out.println("Following is the diff for the branch: " + branchName);
+                stringBuilder.append(tableDivision);
+                stringBuilder.append("Following is the diff for the branch: " + branchName+"\n");
+                String table = "| %-80s | %-50s | %-50s | %-10s\n";
                 for(Map.Entry<String, List<FoundFile>> fileEntry:branchFiles.entrySet()){
-                    System.out.println("\t\tDiff for file: " + fileEntry.getKey()+" and branch: " +branchName);
-                    StringBuilder stringBuilder = new StringBuilder();
-                    String table = "| %-80s | %-50s | %-50s | %-10s\n";
-                    stringBuilder.append(String.format("%250s"," \n").replaceAll(" ","-"));
+                    stringBuilder.append(tableDivision);
+                    stringBuilder.append("\t\tDiff for file: " + fileEntry.getKey()+" and branch: " +branchName + "\n");
+                    stringBuilder.append(tableDivision);
                     stringBuilder.append(String.format(table, "Key", "New Value", "Old Value", "Change Type"));
-                    stringBuilder.append(String.format("%250s"," \n").replaceAll(" ","-"));
+                    stringBuilder.append(tableDivision);
+
                     for(FoundFile foundFile : fileEntry.getValue()) {
                         stringBuilder.append(String.format(table, foundFile.getPropKey(), foundFile.getNewValue(), foundFile.getOldValue(), foundFile.getChangeType().getName()));
                     }
-                    System.out.println(stringBuilder.toString());
+                    stringBuilder.append(tableDivision + "\n\n");
+                }
+            }
+            OutputStreamWriter osw = null;
+            try {
+                osw = new OutputStreamWriter(new FileOutputStream("./target/git-diff.txt"));
+                osw.write(stringBuilder.toString());
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }finally {
+                if (osw != null) {
+                    try {
+                        osw.close();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
         }

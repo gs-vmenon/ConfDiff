@@ -11,5 +11,7 @@ public class Maptest {
         RunInfo runInfo = new RunInfo();
         runInfo.setRunId(1);
         gitDiff.printDiffForRun(runInfo);
+        gitDiff.printDiffForRun(runInfo);
+        gitDiff.printDiffForRun(runInfo);
     }
 }
